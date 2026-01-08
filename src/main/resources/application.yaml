@@ -1,3 +1,7 @@
 spring:
   application:
     name: extension_policy
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
