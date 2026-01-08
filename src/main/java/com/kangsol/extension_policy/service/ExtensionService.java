@@ -1,6 +1,7 @@
 package com.kangsol.extension_policy.service;
 
 
+import com.kangsol.extension_policy.dto.CustomExtensionCreateRequest;
 import com.kangsol.extension_policy.dto.ExtensionResponse;
 import com.kangsol.extension_policy.dto.FixedExtensionToggleRequest;
 import com.kangsol.extension_policy.entity.ExtensionPolicy;
@@ -13,11 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class ExtensionService {
 
     private final ExtensionRepository extensionRepository;
 
-    @Transactional
+    // 고정확장자 토글
     public ExtensionResponse toggleFixed(String rawExt, FixedExtensionToggleRequest request){
 
         // 정규화
@@ -37,4 +39,30 @@ public class ExtensionService {
 
         return ExtensionResponse.fromEntity(extensionPolicy);
     }
+
+
+    // 커스텀 확장자 추가
+    public ExtensionPolicy addCustomExtension(CustomExtensionCreateRequest request){
+        String normalizedExt = ExtensionNormalizer.normalizeSingleExtension(request.getExt());
+
+        if(extensionRepository.existsByExt(normalizedExt)){
+            throw new IllegalArgumentException("이미 차단한 확장자입니다.");
+        }
+
+        ExtensionPolicy policy = ExtensionPolicy.custom(normalizedExt);
+        return extensionRepository.save(policy);
+    }
+
+
+    // 커스텀 확장자 삭제
+    public void deleteCustomExtension(Long id){
+        ExtensionPolicy policy = extensionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 확장자를 찾을 수 없습니다."));
+        if(policy.getType() != ExtensionType.CUSTOM){
+            throw new IllegalArgumentException("고정 확장자는 삭제할 수 없습니다.");
+        }
+
+        extensionRepository.delete(policy);
+    }
+
 }
