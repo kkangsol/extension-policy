@@ -4,6 +4,7 @@ import com.kangsol.extension_policy.dto.CustomExtensionCreateRequest;
 import com.kangsol.extension_policy.dto.ExtensionResponse;
 import com.kangsol.extension_policy.dto.FixedExtensionToggleRequest;
 import com.kangsol.extension_policy.entity.ExtensionPolicy;
+import com.kangsol.extension_policy.entity.ExtensionType;
 import com.kangsol.extension_policy.service.ExtensionService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/extensions")
@@ -47,5 +49,14 @@ public class ExtensionController {
     public ResponseEntity<Void> deleteCustom(@PathVariable Long id){
         extensionService.deleteCustomExtension(id);
         return ResponseEntity.noContent().build();
+    }
+
+    
+    // 차단확장자 조회
+    @GetMapping
+    public ResponseEntity<List<ExtensionPolicy>> getExtensions(
+            @RequestParam(required = false)ExtensionType type
+    ){
+        return ResponseEntity.ok(extensionService.getExtensions(type));
     }
 }

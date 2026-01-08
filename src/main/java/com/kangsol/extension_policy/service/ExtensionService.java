@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 @Transactional
@@ -63,6 +65,15 @@ public class ExtensionService {
         }
 
         extensionRepository.delete(policy);
+    }
+
+
+    // 조회 메서드
+    public List<ExtensionPolicy> getExtensions(ExtensionType type){
+        if(type == null){
+            return extensionRepository.findAllByOrderByTypeAscExtAsc();
+        }
+        return extensionRepository.findAllByTypeOrderByExtAsc(type);
     }
 
 }
