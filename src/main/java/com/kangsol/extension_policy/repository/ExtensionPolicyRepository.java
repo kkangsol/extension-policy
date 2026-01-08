@@ -22,5 +22,5 @@ public interface ExtensionPolicyRepository extends JpaRepository<ExtensionPolicy
     List<ExtensionPolicy> findAllByOrderByTypeAscExtAsc();
 
     // 타입별 조회(정렬 포함)
-    List<ExtensionPolicy> findAllByTypeOrderByExtAsc(ExtensionType type);
+    List<ExtensionPolicy> findAllByTypeOrderById(ExtensionType type);
 }

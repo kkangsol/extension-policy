@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Extension Policy</title>
+
+    <style>
+        :root{
+          --border:#cfcfcf;
+          --border-strong:#bdbdbd;
+          --text:#222;
+          --muted:#666;
+          --bg:#fff;
+          --chip:#f7f7f7;
+          --btn:#6b6b6b;
+          --btn-hover:#575757;
+        }
+
+        *{ box-sizing:border-box; }
+        body{
+          font-family: Arial, sans-serif;
+          color: var(--text);
+          background: var(--bg);
+          padding: 28px 40px;
+        }
+
+        h2{
+          margin: 0 0 22px 0;
+          font-size: 22px;
+          font-weight: 700;
+        }
+
+        .wrap{
+          width: 720px; /* 사진 느낌으로 고정 폭 */
+        }
+
+        .row{
+          display:flex;
+          align-items:flex-start;
+          gap: 18px;
+          margin-bottom: 14px;
+        }
+
+        .label{
+          width: 110px;
+          padding-top: 2px;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+
+        /* FIXED checkbox line */
+        .fixed-group{
+          display:flex;
+          flex-wrap: wrap;
+          gap: 14px 18px;
+          padding-top: 1px;
+        }
+
+        .chk{
+          display:inline-flex;
+          align-items:center;
+          gap: 6px;
+          font-size: 14px;
+          user-select:none;
+        }
+        .chk input{
+          width: 14px;
+          height: 14px;
+          transform: translateY(1px);
+          accent-color: #4b4b4b;
+        }
+
+        /* Custom input row */
+        .custom-input{
+          display:flex;
+          align-items:center;
+          gap: 8px;
+          flex: 1;
+        }
+        .custom-input input{
+          flex: 1;
+          height: 30px;
+          border: 1px solid var(--border);
+          border-radius: 4px;
+          padding: 0 10px;
+          font-size: 14px;
+          outline: none;
+        }
+        .custom-input input:focus{
+          border-color: var(--border-strong);
+        }
+        .custom-input button{
+          height: 30px;
+          padding: 0 12px;
+          border: 0;
+          border-radius: 4px;
+          background: var(--btn);
+          color: #fff;
+          cursor: pointer;
+          font-weight: 700;
+          font-size: 13px;
+        }
+        .custom-input button:hover{
+          background: var(--btn-hover);
+        }
+
+        /* Custom box */
+        .custom-box{
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+
+            min-height: 210px;
+            height: auto;
+            padding: 10px;
+            position: relative;
+            background: #fff;
+}
+
+
+        .count{
+          position:absolute;
+          top: 8px;
+          left: 10px;
+          font-size: 12px;
+          color: var(--muted);
+        }
+
+        .chips{
+          margin-top: 24px; /* count 아래로 */
+          display:flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          align-content: flex-start;
+        }
+
+        .chip{
+          display:inline-flex;
+          align-items:center;
+          gap: 8px;
+          padding: 6px 10px;
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          background: var(--chip);
+          font-size: 13px;
+          line-height: 1;
+        }
+
+        .chip .x{
+          width: 18px;
+          height: 18px;
+          border: 1px solid var(--border-strong);
+          border-radius: 4px;
+          background: #fff;
+          cursor: pointer;
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          font-weight: 700;
+          color: #222;
+          padding:0;
+        }
+
+        .chip .x:hover{
+          background:#f0f0f0;
+        }
+
+        .hint{
+          margin-top: 10px;
+          font-size: 12px;
+          color: var(--muted);
+        }
+
+        /* small error banner (optional) */
+        .error{
+          margin-top: 10px;
+          padding: 8px 10px;
+          border: 1px solid #f0b6b6;
+          background: #fff3f3;
+          color: #8a1f1f;
+          border-radius: 4px;
+          display:none;
+          font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h2>확장자 차단 정책</h2>
+
+    <div class="row">
+        <div class="label">고정 확장자</div>
+        <div id="fixedGroup" class="fixed-group"></div>
+    </div>
+
+    <div class="row">
+        <div class="label">커스텀 확장자</div>
+        <div class="custom-input">
+            <input id="customInput" placeholder="확장자 입력" />
+            <button id="addBtn" type="button">+추가</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="label"></div>
+        <div class="custom-box">
+            <div id="customCount" class="count">0/200</div>
+            <div id="customChips" class="chips"></div>
+        </div>
+    </div>
+
+    <div id="errorBox" class="error"></div>
+</div>
+
+<script>
+
+    const API = {
+      fixedList:  '/extensions?type=FIXED',
+      customList: '/extensions?type=CUSTOM',
+      toggleFixed: (ext) => `/extensions/fixed/${encodeURIComponent(ext)}`,
+      addCustom:  '/extensions/custom',
+      delCustom:  (id) => `/extensions/custom/${id}`
+    };
+
+    const CUSTOM_LIMIT = 200;
+
+    const fixedGroupEl  = document.getElementById('fixedGroup');
+    const customInputEl = document.getElementById('customInput');
+    const addBtnEl      = document.getElementById('addBtn');
+    const customCountEl = document.getElementById('customCount');
+    const customChipsEl = document.getElementById('customChips');
+    const errorBoxEl    = document.getElementById('errorBox');
+
+    const FIXED_ORDER = ["bat", "cmd", "com", "cpl", "exe", "scr", "js"];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      addBtnEl.addEventListener('click', onAddCustom);
+      customInputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') onAddCustom();
+      });
+      refreshAll();
+    });
+
+    async function refreshAll(){
+      hideError();
+      await Promise.all([renderFixed(), renderCustom()]);
+    }
+
+    /* ---------------- FIXED ---------------- */
+
+    async function renderFixed(){
+      const fixed = await fetchJson(API.fixedList);
+
+      // 서버가 보내준 목록을 ext 기준 map으로 만들고, 원하는 순서로 렌더링
+      const map = new Map(fixed.map(x => [x.ext, x]));
+      const ordered = FIXED_ORDER
+        .filter(ext => map.has(ext))
+        .map(ext => map.get(ext));
+
+      fixedGroupEl.innerHTML = '';
+      ordered.forEach(item => {
+        const label = document.createElement('label');
+        label.className = 'chk';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = !!item.blocked;
+        cb.dataset.ext = item.ext;
+
+        cb.addEventListener('change', async (e) => {
+          const ext = e.target.dataset.ext;
+          const newBlocked = e.target.checked;
+          const prev = !newBlocked;
+
+          try {
+            await fetch(API.toggleFixed(ext), {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ blocked: newBlocked })
+            }).then(assertOk);
+
+          } catch (err) {
+            // 실패하면 UI 롤백 (DB가 진짜)
+            e.target.checked = prev;
+            showError(err.message);
+            alert(err.message);
+          }
+        });
+
+        const text = document.createTextNode(' ' + item.ext);
+
+        label.appendChild(cb);
+        label.appendChild(text);
+        fixedGroupEl.appendChild(label);
+      });
+    }
+
+    /* ---------------- CUSTOM ---------------- */
+
+    async function renderCustom(){
+      const custom = await fetchJson(API.customList);
+
+      customChipsEl.innerHTML = '';
+      customCountEl.textContent = `${custom.length}/${CUSTOM_LIMIT}`;
+
+      custom.forEach(item => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+
+        const name = document.createElement('span');
+        name.textContent = item.ext;
+
+        const x = document.createElement('button');
+        x.className = 'x';
+        x.type = 'button';
+        x.textContent = 'X';
+        x.title = '삭제';
+
+        x.addEventListener('click', async () => {
+          try {
+            await fetch(API.delCustom(item.id), { method: 'DELETE' }).then(assertOk);
+            await renderCustom(); // 목록 갱신
+          } catch (err) {
+            showError(err.message);
+            alert(err.message);
+          }
+        });
+
+        chip.appendChild(name);
+        chip.appendChild(x);
+        customChipsEl.appendChild(chip);
+      });
+    }
+
+    async function onAddCustom(){
+      hideError();
+
+      const raw = customInputEl.value;
+      if (!raw || !raw.trim()) return;
+
+      try {
+        await fetch(API.addCustom, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ext: raw })
+        }).then(assertOk);
+
+        customInputEl.value = '';
+        await renderCustom(); // 추가 후 CUSTOM만 갱신
+      } catch (err) {
+        showError(err.message);
+        alert(err.message);
+      }
+    }
+
+    /* ---------------- helpers ---------------- */
+
+    async function fetchJson(url){
+      const res = await fetch(url);
+      if (!res.ok) {
+        const msg = await safeText(res);
+        throw new Error(msg || `요청 실패 (${res.status})`);
+      }
+      return res.json();
+    }
+
+    async function assertOk(res){
+      if (res.ok) return;
+      const msg = await safeText(res);
+      throw new Error(msg || `요청 실패 (${res.status})`);
+    }
+
+    async function safeText(res){
+      try { return await res.text(); } catch { return ""; }
+    }
+
+    function showError(msg){
+      errorBoxEl.textContent = msg;
+      errorBoxEl.style.display = 'block';
+    }
+
+    function hideError(){
+      errorBoxEl.textContent = '';
+      errorBoxEl.style.display = 'none';
+    }
+</script>
+</body>
+</html>
