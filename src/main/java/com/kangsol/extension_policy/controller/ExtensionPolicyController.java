@@ -5,7 +5,7 @@ import com.kangsol.extension_policy.dto.ExtensionResponse;
 import com.kangsol.extension_policy.dto.FixedExtensionToggleRequest;
 import com.kangsol.extension_policy.entity.ExtensionPolicy;
 import com.kangsol.extension_policy.entity.ExtensionType;
-import com.kangsol.extension_policy.service.ExtensionService;
+import com.kangsol.extension_policy.service.ExtensionPolicyService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +17,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/extensions")
 @AllArgsConstructor
-public class ExtensionController {
+public class ExtensionPolicyController {
 
-    private final ExtensionService extensionService;
+    private final ExtensionPolicyService extensionPolicyService;
 
     // 고정 확장자 토글
     @PatchMapping("/fixed/{ext}")
@@ -27,7 +27,7 @@ public class ExtensionController {
             @PathVariable String ext,
             @Valid @RequestBody FixedExtensionToggleRequest request
     ){
-        ExtensionResponse response = extensionService.toggleFixed(ext, request);
+        ExtensionResponse response = extensionPolicyService.toggleFixed(ext, request);
         return ResponseEntity.ok(response);
     }
 
@@ -37,7 +37,7 @@ public class ExtensionController {
     public ResponseEntity<ExtensionPolicy> addCustom(
             @Valid @RequestBody CustomExtensionCreateRequest request
     ){
-        ExtensionPolicy saved = extensionService.addCustomExtension(request);
+        ExtensionPolicy saved = extensionPolicyService.addCustomExtension(request);
 
         return ResponseEntity.created(URI.create("/extensions/custom/" + saved.getId()))
                 .body(saved);
@@ -47,7 +47,7 @@ public class ExtensionController {
     // 커스텀 확장자 삭제
     @DeleteMapping("/custom/{id}")
     public ResponseEntity<Void> deleteCustom(@PathVariable Long id){
-        extensionService.deleteCustomExtension(id);
+        extensionPolicyService.deleteCustomExtension(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -57,6 +57,6 @@ public class ExtensionController {
     public ResponseEntity<List<ExtensionPolicy>> getExtensions(
             @RequestParam(required = false)ExtensionType type
     ){
-        return ResponseEntity.ok(extensionService.getExtensions(type));
+        return ResponseEntity.ok(extensionPolicyService.getExtensions(type));
     }
 }
