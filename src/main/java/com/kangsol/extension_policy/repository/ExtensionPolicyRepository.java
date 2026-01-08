@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface ExtensionRepository extends JpaRepository<ExtensionPolicy, Long> {
+public interface ExtensionPolicyRepository extends JpaRepository<ExtensionPolicy, Long> {
 
     // ext로 조회
     Optional<ExtensionPolicy> findByExt(String ext);
