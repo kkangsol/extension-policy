@@ -93,7 +93,7 @@ public class ExtensionPolicyService {
         if(type == null){
             return extensionPolicyRepository.findAllByOrderByTypeAscExtAsc();
         }
-        return extensionPolicyRepository.findAllByTypeOrderByExtAsc(type);
+        return extensionPolicyRepository.findAllByTypeOrderById(type);
     }
 
 }
