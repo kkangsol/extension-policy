@@ -240,6 +240,24 @@
 
 ---
 
+
+## 🔄 개발 진행 방식 (Issue 기반 작업 관리)
+
+본 프로젝트는 기능 구현 단위로 작업을 나누어  
+**GitHub Issue → Commit → Pull Request** 흐름으로 개발을 진행했습니다.
+
+- 각 기능 및 변경 사항을 이슈로 정의
+- 이슈 단위로 커밋을 관리
+- 기능 완성 후 PR을 통해 병합
+
+이를 통해 작업 범위와 변경 이력을 명확히 관리하고,  
+실제 협업 환경에서의 개발 흐름을 최대한 반영하고자 했습니다.
+
+<img width="1382" height="652" alt="image" src="https://github.com/user-attachments/assets/224f46c1-3cfc-4c53-9ba2-33ce71c914ea" />
+<img width="1153" height="712" alt="image" src="https://github.com/user-attachments/assets/fad81a26-2eba-42a0-8000-8ff245ee814a" />
+
+
+
 ## ✍️ 회고
 
 이번 프로젝트를 통해  
