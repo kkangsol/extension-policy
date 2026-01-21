@@ -56,13 +56,13 @@ public class ExtensionPolicyController {
             @ApiResponse(responseCode = "409", description = "중복 또는 200개 제한 초과")
     })
     @PostMapping("/custom")
-    public ResponseEntity<ExtensionPolicy> addCustom(
+    public ResponseEntity<ExtensionResponse> addCustom(
             @Valid @RequestBody CustomExtensionCreateRequest request
     ){
         ExtensionPolicy saved = extensionPolicyService.addCustomExtension(request);
 
         return ResponseEntity.created(URI.create("/extensions/custom/" + saved.getId()))
-                .body(saved);
+                .body(ExtensionResponse.fromEntity(saved));
     }
 
 
@@ -93,9 +93,12 @@ public class ExtensionPolicyController {
             @ApiResponse(responseCode = "400", description = "잘못된 type 값")
     })
     @GetMapping
-    public ResponseEntity<List<ExtensionPolicy>> getExtensions(
+    public ResponseEntity<List<ExtensionResponse>> getExtensions(
             @RequestParam(required = false)ExtensionType type
     ){
-        return ResponseEntity.ok(extensionPolicyService.getExtensions(type));
+        return ResponseEntity.ok(extensionPolicyService.getExtensions(type)
+                .stream()
+                .map(ExtensionResponse::fromEntity)
+                .toList());
     }
 }
